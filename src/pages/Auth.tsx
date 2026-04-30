@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pill } from "lucide-react";
+import { Pill, X } from "lucide-react";
 import { toast } from "sonner";
 
 const signInSchema = z.object({
@@ -80,7 +80,17 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-soft">
       <div className="container flex min-h-screen items-center justify-center py-12">
-        <div className="w-full max-w-md space-y-6 rounded-3xl bg-card p-8 shadow-soft">
+        <div className="relative w-full max-w-md space-y-6 rounded-3xl bg-card p-8 shadow-soft">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Close"
+            onClick={() => navigate("/")}
+            className="absolute right-3 top-3 h-9 w-9 rounded-full text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-5 w-5" />
+          </Button>
           <div className="space-y-2 text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-warm shadow-soft">
               <Pill className="h-6 w-6 text-primary-foreground" />
