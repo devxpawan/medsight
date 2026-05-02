@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Pill, Plus, LogIn, LogOut } from "lucide-react";
+import { Pill, Plus, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -21,6 +21,10 @@ export const Navbar = () => {
             <>
               <Button variant="ghost" size="sm" onClick={() => navigate("/upload")}>
                 <Plus className="h-4 w-4" /> Upload
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">{user.displayName}</span>
               </Button>
               <Button variant="ghost" size="sm" onClick={async () => { await signOut(); navigate("/"); }}>
                 <LogOut className="h-4 w-4" />
