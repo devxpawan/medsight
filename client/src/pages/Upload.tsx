@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImagePlus, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const MAX_IMAGES = 3;

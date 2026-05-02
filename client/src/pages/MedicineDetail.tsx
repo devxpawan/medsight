@@ -7,8 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL;
-const SERVER_URL = import.meta.env.VITE_API_URL?.replace('/api', '');
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const SERVER_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000";
 
 interface Medicine {
   _id: string;
