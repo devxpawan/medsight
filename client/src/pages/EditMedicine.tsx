@@ -11,8 +11,8 @@ import { ImagePlus, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const SERVER_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL + "/api" || "http://localhost:5000/api";
+const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const MAX_IMAGES = 3;
