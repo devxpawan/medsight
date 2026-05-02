@@ -8,6 +8,7 @@ import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import Upload from "./pages/Upload.tsx";
 import MedicineDetail from "./pages/MedicineDetail.tsx";
+import EditMedicine from "./pages/EditMedicine.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/medicine/:id" element={<MedicineDetail />} />
+            <Route path="/medicine/:id/edit" element={<EditMedicine />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

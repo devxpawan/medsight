@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Pill, X } from "lucide-react";
 import { toast } from "sonner";
+
+const API_URL = "http://localhost:5000/api";
 
 const signInSchema = z.object({
   email: z.string().trim().email("Invalid email").max(255),
@@ -20,7 +21,7 @@ const signUpSchema = signInSchema.extend({
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signIn } = useAuth();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -39,13 +40,22 @@ const Auth = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: result.data.email,
-      password: result.data.password,
-    });
-    setLoading(false);
-    if (error) toast.error(error.message);
-    else navigate("/");
+    try {
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(result.data),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to sign in");
+      
+      signIn(data.token, data.user);
+      navigate("/");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -61,19 +71,22 @@ const Auth = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: result.data.email,
-      password: result.data.password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: { display_name: result.data.displayName },
-      },
-    });
-    setLoading(false);
-    if (error) toast.error(error.message);
-    else {
+    try {
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(result.data),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to create account");
+      
+      signIn(data.token, data.user);
       toast.success("Welcome! You're signed in.");
       navigate("/");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 

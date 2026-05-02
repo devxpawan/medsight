@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, User, Calendar } from "lucide-react";
+import { ArrowLeft, User, Calendar, Edit } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+
+const API_URL = "http://localhost:5000/api";
+const SERVER_URL = "http://localhost:5000";
 
 interface Medicine {
-  id: string;
+  _id: string;
   name: string | null;
   illness: string;
   notes: string | null;
   image_urls: string[];
-  created_at: string;
+  createdAt: string;
   user_id: string;
+  uploaderName?: string;
 }
 
 const MedicineDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [medicine, setMedicine] = useState<Medicine | null>(null);
-  const [uploader, setUploader] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(0);
 
@@ -32,12 +37,14 @@ const MedicineDetail = () => {
   useEffect(() => {
     if (!id) return;
     (async () => {
-      const { data } = await supabase.from("medicines").select("*").eq("id", id).maybeSingle();
-      setMedicine(data);
-      if (data) {
-        const { data: profile } = await supabase
-          .from("profiles").select("display_name").eq("id", data.user_id).maybeSingle();
-        setUploader(profile?.display_name ?? null);
+      try {
+        const res = await fetch(`${API_URL}/medicines/${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMedicine(data);
+        }
+      } catch (err) {
+        console.error(err);
       }
       setLoading(false);
     })();
@@ -78,7 +85,7 @@ const MedicineDetail = () => {
           <div className="space-y-3">
             <div className="overflow-hidden rounded-2xl bg-muted shadow-card">
               {medicine.image_urls[active] ? (
-                <img src={medicine.image_urls[active]} alt={medicine.name || medicine.illness}
+                <img src={`${SERVER_URL}${medicine.image_urls[active]}`} alt={medicine.name || medicine.illness}
                   className="h-full w-full object-cover" />
               ) : null}
             </div>
@@ -89,7 +96,7 @@ const MedicineDetail = () => {
                     className={`h-16 w-16 overflow-hidden rounded-lg transition-smooth ${
                       i === active ? "ring-2 ring-primary ring-offset-2" : "opacity-70 hover:opacity-100"
                     }`}>
-                    <img src={url} alt={`${i + 1}`} className="h-full w-full object-cover" />
+                    <img src={`${SERVER_URL}${url}`} alt={`${i + 1}`} className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -98,7 +105,16 @@ const MedicineDetail = () => {
 
           <article className="space-y-5">
             <div className="space-y-2">
-              <Badge className="bg-primary-soft text-primary hover:bg-primary-soft">{medicine.illness}</Badge>
+              <div className="flex items-center justify-between">
+                <Badge className="bg-primary-soft text-primary hover:bg-primary-soft">{medicine.illness}</Badge>
+                {user?.id === medicine.user_id && (
+                  <Link to={`/medicine/${medicine._id}/edit`}>
+                    <Button variant="outline" size="sm">
+                      <Edit className="h-4 w-4 mr-2" /> Edit
+                    </Button>
+                  </Link>
+                )}
+              </div>
               <h1 className="text-3xl font-semibold tracking-tight">
                 {medicine.name || "Unnamed medicine"}
               </h1>
@@ -114,11 +130,11 @@ const MedicineDetail = () => {
             <div className="flex flex-wrap gap-4 border-t border-border pt-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <User className="h-4 w-4" />
-                <span>{uploader || "Anonymous"}</span>
+                <span>{medicine.uploaderName || "Anonymous"}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Calendar className="h-4 w-4" />
-                <span>{new Date(medicine.created_at).toLocaleDateString()}</span>
+                <span>{new Date(medicine.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
 

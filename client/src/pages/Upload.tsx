@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImagePlus, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+
+const API_URL = "http://localhost:5000/api";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const MAX_IMAGES = 3;
@@ -66,30 +67,31 @@ const UploadPage = () => {
 
     setSubmitting(true);
     try {
-      const urls: string[] = [];
-      for (const { file } of files) {
-        const ext = file.name.split(".").pop() || "jpg";
-        const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from("medicine-images").upload(path, file, { contentType: file.type });
-        if (upErr) throw upErr;
-        const { data } = supabase.storage.from("medicine-images").getPublicUrl(path);
-        urls.push(data.publicUrl);
-      }
-
-      const { error: insErr } = await supabase.from("medicines").insert({
-        user_id: user.id,
-        name: result.data.name || null,
-        illness: result.data.illness,
-        notes: result.data.notes || null,
-        image_urls: urls,
+      const uploadData = new FormData();
+      if (result.data.name) uploadData.append("name", result.data.name);
+      uploadData.append("illness", result.data.illness);
+      if (result.data.notes) uploadData.append("notes", result.data.notes);
+      
+      files.forEach(({ file }) => {
+        uploadData.append("images", file);
       });
-      if (insErr) throw insErr;
+
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/medicines`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: uploadData
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Upload failed");
 
       toast.success("Medicine shared!");
       navigate("/");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
     } finally {
       setSubmitting(false);
     }

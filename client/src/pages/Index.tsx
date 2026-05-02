@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navbar } from "@/components/Navbar";
 import { MedicineCard } from "@/components/MedicineCard";
@@ -9,8 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Plus, Pill } from "lucide-react";
 
+const API_URL = "http://localhost:5000/api";
+const SERVER_URL = "http://localhost:5000";
+
 interface Medicine {
-  id: string;
+  _id: string;
   name: string | null;
   illness: string;
   image_urls: string[];
@@ -30,12 +32,15 @@ const Index = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("medicines")
-        .select("id, name, illness, image_urls")
-        .order("created_at", { ascending: false })
-        .limit(100);
-      setMedicines(data ?? []);
+      try {
+        const res = await fetch(`${API_URL}/medicines`);
+        if (res.ok) {
+          const data = await res.json();
+          setMedicines(data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
       setLoading(false);
     })();
   }, []);
@@ -101,11 +106,11 @@ const Index = () => {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {filtered.map((m) => (
               <MedicineCard
-                key={m.id}
-                id={m.id}
+                key={m._id}
+                id={m._id}
                 name={m.name}
                 illness={m.illness}
-                imageUrl={m.image_urls[0]}
+                imageUrl={m.image_urls[0] ? `${SERVER_URL}${m.image_urls[0]}` : undefined}
               />
             ))}
           </div>
