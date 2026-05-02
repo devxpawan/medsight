@@ -4,19 +4,21 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = 'uploads/';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
-    cb(null, dir);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'med-vision-share',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
-  }
 });
 
 const upload = multer({ storage });
@@ -26,7 +28,7 @@ router.post('/', auth, upload.array('images', 3), async (req, res) => {
     const { name, illness, notes } = req.body;
     
     const imageUrls = req.files.map(file => {
-      return `/uploads/${file.filename}`;
+      return file.path;
     });
 
     const newMedicine = new Medicine({
@@ -95,7 +97,7 @@ router.put('/:id', auth, upload.array('images', 3), async (req, res) => {
     if (notes !== undefined) medicine.notes = notes;
     
     if (req.files && req.files.length > 0) {
-      const imageUrls = req.files.map(file => `/uploads/${file.filename}`);
+      const imageUrls = req.files.map(file => file.path);
       medicine.image_urls = imageUrls;
     }
     

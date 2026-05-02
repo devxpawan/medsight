@@ -56,7 +56,9 @@ const EditMedicinePage = () => {
           setInitialData(data);
           
           if (data.image_urls) {
-            setFiles(data.image_urls.map((url: string) => ({ url: `${SERVER_URL}${url}` })));
+            setFiles(data.image_urls.map((url: string) => ({ 
+              url: url.startsWith('http') ? url : `${SERVER_URL}${url}` 
+            })));
           }
         } else {
           toast.error("Medicine not found");

@@ -110,7 +110,7 @@ const Index = () => {
                 id={m._id}
                 name={m.name}
                 illness={m.illness}
-                imageUrl={m.image_urls[0] ? `${SERVER_URL}${m.image_urls[0]}` : undefined}
+                imageUrl={m.image_urls[0] ? (m.image_urls[0].startsWith('http') ? m.image_urls[0] : `${SERVER_URL}${m.image_urls[0]}`) : undefined}
               />
             ))}
           </div>

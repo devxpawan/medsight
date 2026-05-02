@@ -85,7 +85,7 @@ const MedicineDetail = () => {
           <div className="space-y-3">
             <div className="overflow-hidden rounded-2xl bg-muted shadow-card">
               {medicine.image_urls[active] ? (
-                <img src={`${SERVER_URL}${medicine.image_urls[active]}`} alt={medicine.name || medicine.illness}
+                <img src={medicine.image_urls[active].startsWith('http') ? medicine.image_urls[active] : `${SERVER_URL}${medicine.image_urls[active]}`} alt={medicine.name || medicine.illness}
                   className="h-full w-full object-cover" />
               ) : null}
             </div>
@@ -96,7 +96,7 @@ const MedicineDetail = () => {
                     className={`h-16 w-16 overflow-hidden rounded-lg transition-smooth ${
                       i === active ? "ring-2 ring-primary ring-offset-2" : "opacity-70 hover:opacity-100"
                     }`}>
-                    <img src={`${SERVER_URL}${url}`} alt={`${i + 1}`} className="h-full w-full object-cover" />
+                    <img src={url.startsWith('http') ? url : `${SERVER_URL}${url}`} alt={`${i + 1}`} className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
