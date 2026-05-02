@@ -8,9 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Plus, Pill } from "lucide-react";
 
-const API_URL =
-  import.meta.env.VITE_API_URL + "/api" || "http://localhost:5000/api";
-const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const SERVER_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000";
 
 interface Medicine {
   _id: string;
