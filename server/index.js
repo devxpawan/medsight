@@ -18,9 +18,9 @@ const medicineRoutes = require("./routes/medicines");
 app.use("/api/auth", authRoutes);
 app.use("/api/medicines", medicineRoutes);
 
-// Root endpoint to prevent "Cannot GET /"
+// Root endpoint"
 app.get("/", (req, res) => {
-  res.send("MedVision API is running successfully!");
+  res.send("API is running...");
 });
 
 const PORT = process.env.PORT || 5000;
