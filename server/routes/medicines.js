@@ -96,7 +96,11 @@ router.put('/:id', auth, upload.array('images', 3), async (req, res) => {
     if (illness !== undefined) medicine.illness = illness;
     if (notes !== undefined) medicine.notes = notes;
     
-    if (req.files && req.files.length > 0) {
+    if (req.body.existingImages !== undefined) {
+      const existingImages = JSON.parse(req.body.existingImages);
+      const newImageUrls = req.files ? req.files.map(file => file.path) : [];
+      medicine.image_urls = [...existingImages, ...newImageUrls];
+    } else if (req.files && req.files.length > 0) {
       const imageUrls = req.files.map(file => file.path);
       medicine.image_urls = imageUrls;
     }

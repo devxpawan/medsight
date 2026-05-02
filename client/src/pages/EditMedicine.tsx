@@ -112,11 +112,12 @@ const EditMedicinePage = () => {
       if (result.data.notes) uploadData.append("notes", result.data.notes);
       
       const newFiles = files.filter(f => f.file);
-      // NOTE: Our current backend implementation will override image_urls completely if ANY new files are uploaded.
-      // If no new files, it keeps the old ones.
       newFiles.forEach(({ file }) => {
         uploadData.append("images", file as File);
       });
+
+      const existingImages = files.filter(f => !f.file).map(f => f.url);
+      uploadData.append("existingImages", JSON.stringify(existingImages));
 
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_URL}/medicines/${id}`, {
@@ -181,7 +182,7 @@ const EditMedicinePage = () => {
                 </label>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">Up to {MAX_IMAGES} photos · Max 5MB each · JPG, PNG, WEBP. Uploading new photos replaces all existing ones.</p>
+            <p className="text-xs text-muted-foreground">Up to {MAX_IMAGES} photos · Max 5MB each · JPG, PNG, WEBP.</p>
           </div>
 
           <div className="space-y-2">
