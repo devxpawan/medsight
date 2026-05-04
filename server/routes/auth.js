@@ -7,7 +7,11 @@ const auth = require('../middleware/auth');
 router.post('/register', async (req, res) => {
   try {
     const { email, password, displayName } = req.body;
-    
+
+    if (!email || !password || !displayName) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" });
@@ -23,7 +27,11 @@ router.post('/register', async (req, res) => {
     });
 
     const savedUser = await newUser.save();
-    
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: "Server configuration error" });
+    }
+
     const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
     res.status(201).json({
@@ -43,6 +51,10 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -51,6 +63,10 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: "Server configuration error" });
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
